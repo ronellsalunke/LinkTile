@@ -22,7 +22,7 @@ import androidx.glance.wear.tiles.GlanceTileService
 import ronell.glancetiledemo.R
 
 
-class HelloTileService : GlanceTileService() {
+class LinkTileService : GlanceTileService() {
 
     @Composable
     override fun Content() {
