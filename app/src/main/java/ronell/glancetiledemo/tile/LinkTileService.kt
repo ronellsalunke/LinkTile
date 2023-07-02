@@ -7,16 +7,17 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
+import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.height
 import androidx.glance.layout.size
+import androidx.glance.layout.width
 import androidx.glance.text.Text
 import androidx.glance.wear.tiles.GlanceTileService
 import ronell.glancetiledemo.R
@@ -26,18 +27,27 @@ class LinkTileService : GlanceTileService() {
 
     @Composable
     override fun Content() {
-        val context = LocalContext.current
-        val imageSize = LocalSize.current.times(0.6f)
+        val imageSize = LocalSize.current.times(0.65f)
         Column(
             modifier = GlanceModifier.fillMaxSize().background(Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Ronell's LinkedIn"
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "My",
+                )
+                Spacer(GlanceModifier.width(6.dp))
+                Image(
+                    provider = ImageProvider(R.drawable.linkedin_logo),
+                    modifier = GlanceModifier.size(16.dp),
+                    contentDescription = "LinkedIn Logo"
+                )
+            }
 
-            Spacer(GlanceModifier.height(10.dp))
+            Spacer(GlanceModifier.height(6.dp))
 
             Image(
                 provider = ImageProvider(R.drawable.linkedin_qr),
@@ -48,3 +58,4 @@ class LinkTileService : GlanceTileService() {
         }
     }
 }
+
