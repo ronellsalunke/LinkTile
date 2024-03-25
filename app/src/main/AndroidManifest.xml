@@ -23,7 +23,7 @@
 
             <meta-data
                 android:name="androidx.wear.tiles.PREVIEW"
-                android:resource="@drawable/tile_preview" />
+                android:resource="@drawable/linkedin_qr" />
         </service>
 
         <uses-library
