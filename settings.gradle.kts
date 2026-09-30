@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "GlanceTileDemo"
-include ':app'
+include(":app")

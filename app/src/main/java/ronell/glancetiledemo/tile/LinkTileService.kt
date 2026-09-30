@@ -1,61 +1,76 @@
 package ronell.glancetiledemo.tile
 
-
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.glance.GlanceModifier
-import androidx.glance.Image
-import androidx.glance.ImageProvider
-import androidx.glance.LocalSize
-import androidx.glance.background
-import androidx.glance.layout.Alignment
-import androidx.glance.layout.Column
-import androidx.glance.layout.ContentScale
-import androidx.glance.layout.Row
-import androidx.glance.layout.Spacer
-import androidx.glance.layout.fillMaxSize
-import androidx.glance.layout.height
-import androidx.glance.layout.size
-import androidx.glance.layout.width
-import androidx.glance.text.Text
-import androidx.glance.wear.tiles.GlanceTileService
+import android.graphics.Color
+import androidx.concurrent.futures.ResolvableFuture
+import androidx.wear.protolayout.ColorBuilders.ColorProp
+import androidx.wear.protolayout.DimensionBuilders
+import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.ModifiersBuilders
+import androidx.wear.protolayout.ResourceBuilders
+import androidx.wear.protolayout.TimelineBuilders
+import androidx.wear.tiles.RequestBuilders.ResourcesRequest
+import androidx.wear.tiles.RequestBuilders.TileRequest
+import androidx.wear.tiles.TileBuilders
+import androidx.wear.tiles.TileService
+import com.google.common.util.concurrent.ListenableFuture
 import ronell.glancetiledemo.R
 
+class LinkTileService : TileService() {
 
-class LinkTileService : GlanceTileService() {
+    override fun onTileRequest(requestParams: TileRequest): ListenableFuture<TileBuilders.Tile> {
+        val deviceParams = requestParams.deviceConfiguration
+        val qrSizeDp = (minOf(deviceParams.screenWidthDp, deviceParams.screenHeightDp) * QR_FRACTION).toInt()
 
-    @Composable
-    override fun Content() {
-        val imageSize = LocalSize.current.times(0.65f)
-        Column(
-            modifier = GlanceModifier.fillMaxSize().background(Color.Black),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "My",
-                )
-                Spacer(GlanceModifier.width(6.dp))
-                Image(
-                    provider = ImageProvider(R.drawable.linkedin_logo),
-                    modifier = GlanceModifier.size(16.dp),
-                    contentDescription = "LinkedIn Logo"
-                )
-            }
-
-            Spacer(GlanceModifier.height(6.dp))
-
-            Image(
-                provider = ImageProvider(R.drawable.linkedin_qr),
-                modifier = GlanceModifier.size(imageSize.width, imageSize.height),
-                contentScale = ContentScale.Fit,
-                contentDescription = "LinkedIn Tile"
+        val layout = LayoutElementBuilders.Box.Builder()
+            .setWidth(DimensionBuilders.expand())
+            .setHeight(DimensionBuilders.expand())
+            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
+            .setModifiers(
+                ModifiersBuilders.Modifiers.Builder()
+                    .setBackground(
+                        ModifiersBuilders.Background.Builder()
+                            .setColor(ColorProp.Builder().setArgb(Color.BLACK).build())
+                            .build()
+                    )
+                    .build()
             )
-        }
+            .addContent(
+                LayoutElementBuilders.Image.Builder()
+                    .setResourceId(IMAGE_QR)
+                    .setWidth(DimensionBuilders.dp(qrSizeDp.toFloat()))
+                    .setHeight(DimensionBuilders.dp(qrSizeDp.toFloat()))
+                    .build()
+            )
+            .build()
+
+        val tile = TileBuilders.Tile.Builder()
+            .setResourcesVersion(RESOURCES_VERSION)
+            .setTileTimeline(TimelineBuilders.Timeline.fromLayoutElement(layout))
+            .build()
+        return ResolvableFuture.create<TileBuilders.Tile>().apply { set(tile) }
+    }
+
+    override fun onTileResourcesRequest(requestParams: ResourcesRequest): ListenableFuture<ResourceBuilders.Resources> {
+        val resources = ResourceBuilders.Resources.Builder()
+            .setVersion(RESOURCES_VERSION)
+            .addIdToImageMapping(IMAGE_QR, imageResource(R.drawable.qr_code))
+            .build()
+        return ResolvableFuture.create<ResourceBuilders.Resources>().apply { set(resources) }
+    }
+
+    companion object {
+        private const val RESOURCES_VERSION = "1"
+        private const val IMAGE_QR = "qr"
+        private const val QR_FRACTION = 0.65f
     }
 }
 
+private fun imageResource(resId: Int): ResourceBuilders.ImageResource =
+    ResourceBuilders.ImageResource.Builder()
+        .setAndroidResourceByResId(
+            ResourceBuilders.AndroidImageResourceByResId.Builder()
+                .setResourceId(resId)
+                .build()
+        )
+        .build()
